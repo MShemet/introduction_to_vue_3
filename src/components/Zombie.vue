@@ -90,3 +90,9 @@
     <path class="cls-18" d="M1329.4 738.5h19.5v28.35h-19.5z" />
   </g>
 </template>
+
+<script>
+export default {};
+</script>
+
+<style lang="scss" scoped></style>

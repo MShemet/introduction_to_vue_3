@@ -1,7 +1,7 @@
 <template>
-  <div id="nav" class="contain">
+  <div id="app" class="contain">
     <GamestateStart v-if="uiState === 'start'">
-      <h2>Which human do you want to be?</h2>
+      <h2>Which hooman do you want to be?</h2>
 
       <p
         v-for="option in characterChoices"
@@ -9,18 +9,19 @@
         class="character-choices"
       >
         <input
-          v-model="characterInput"
+          v-model="characterinput"
           :id="option"
           :value="option"
           type="radio"
         />
         <label :for="option">{{ option }}</label>
+        <br />
       </p>
 
       <button @click="pickCharacter">Pick your character</button>
     </GamestateStart>
 
-    <section v-else>
+    <section v-else-if="uiState === 'characterChosen'">
       <svg viewBox="0 -180 1628 1180" class="main">
         <defs>
           <clipPath id="bottom-clip">
@@ -32,6 +33,7 @@
               height="1000"
             />
           </clipPath>
+
           <clipPath id="top-clip">
             <rect
               class="top-clip-path"
@@ -43,13 +45,20 @@
           </clipPath>
         </defs>
 
+        <Friend />
+        <Score />
+
+        <component :is="character" class="character-clip"></component>
+
+        <Zombie class="zombie-clip" />
+
         <text
           x="1000"
           y="930"
           style="font: normal 45px 'Recursive; text-transform: uppercase;"
           class="text"
         >
-          Character Name
+          {{ character }}
         </text>
 
         <path fill="#f0959f" d="M0 842h657v192H0z" />
@@ -80,30 +89,85 @@
           />
         </g>
       </svg>
+
+      <div class="friendtalk">
+        <h3>{{ questions[questionIndex].question }}</h3>
+      </div>
+
+      <div class="zombietalk">
+        <p v-for="character in shuffle(characterChoices)" :key="character">
+          <button @click="pickQuestion(character)">
+            {{ questions[questionIndex][character] }}
+          </button>
+        </p>
+      </div>
     </section>
+
+    <GamestateFinish v-else />
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
-import GamestateStart from './components/GamestateStart.vue';
+import gsap from 'gsap';
+
+import Score from '@/components/Score.vue';
+import Baker from '@/components/Baker.vue';
+import Friend from '@/components/Friend.vue';
+import Artist from '@/components/Artist.vue';
+import Zombie from '@/components/Zombie.vue';
+import Mechanic from '@/components/Mechanic.vue';
+import GamestateStart from '@/components/GamestateStart.vue';
+import GamestateFinish from '@/components/GamestateFinish.vue';
 
 export default {
   components: {
+    Score,
+    Baker,
+    Friend,
+    Artist,
+    Zombie,
+    Mechanic,
     GamestateStart,
+    GamestateFinish,
   },
   data() {
     return {
-      characterInput: '',
+      characterinput: '',
     };
   },
   computed: {
-    ...mapState(['questions', 'uiState', 'characterChoices', 'character']),
+    ...mapState([
+      'uiState',
+      'characterChoices',
+      'character',
+      'questions',
+      'questionIndex',
+      'score',
+    ]),
   },
   methods: {
     pickCharacter() {
-      this.$store.commit('pickCharacter', this.characterInput);
-      this.$store.commit('updateUiState', 'characterChosen');
+      this.$store.commit('updateCharacter', this.characterinput);
+      this.$store.commit('updateUIState', 'characterChosen');
+    },
+    pickQuestion(character) {
+      this.$store.commit('pickQuestion', character);
+    },
+    shuffle(array) {
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    },
+  },
+  watch: {
+    score(newValue, oldValue) {
+      console.log(oldValue);
+      gsap.to('.bottom-clip-path, .top-clip-path', {
+        y: -newValue * 6,
+      });
     },
   },
 };
@@ -120,7 +184,7 @@ body {
   color: #2c3e50;
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100vh; /* if you don't want it to take up the full screen, reduce this number */
   overflow: hidden;
   background-size: cover !important;
   background: url('./assets/background.svg') no-repeat center center scroll,
@@ -204,12 +268,10 @@ text {
   display: flex;
   flex-direction: column;
   justify-content: center;
-
   p {
     margin: 0;
     text-align: center;
   }
-
   button {
     padding: 0.25rem 1rem;
     margin: 7px 0;
@@ -228,171 +290,129 @@ text {
 .cls-2 {
   fill: #29abe2;
 }
-
 .cls-3 {
   fill: #3d2f45;
 }
-
 .cls-4 {
   fill: #ff4d60;
 }
-
 .cls-5 {
   fill: #bf593a;
 }
-
 .cls-6 {
   fill: #96442b;
 }
-
 .cls-7 {
   fill: #852028;
 }
-
 .cls-8 {
   fill: #fffaf1;
 }
-
 .cls-9 {
   fill: #b8343f;
 }
-
 .cls-10 {
   fill: #66273a;
 }
-
 .cls-11 {
   fill: #d64151;
 }
-
 .cls-12 {
   fill: #9c2f3b;
 }
-
 .cls-13 {
   fill: #5c4769;
 }
-
 .cls-14 {
   fill: #bf571f;
 }
-
 .cls-15 {
   fill: #f58a4c;
 }
-
 .cls-16 {
   fill: #ffa870;
 }
-
 .cls-17 {
   fill: #ff8366;
 }
-
 .cls-18 {
   fill: #7a2f45;
 }
-
 .cls-19 {
   fill: #a12d37;
 }
-
 .cls-20 {
   fill: #fff;
 }
-
 .cls-21 {
   fill: #c93945;
 }
-
 .cls-22 {
   fill: #644b6e;
 }
-
 .cls-23 {
   fill: #382a3d;
 }
-
 .cls-24 {
   fill: #96c466;
 }
-
 .cls-25 {
   fill: #7bad47;
 }
-
 .cls-26 {
   fill: #d1e6ff;
 }
-
 .cls-27 {
   fill: #c6f7be;
 }
-
 .cls-28 {
   fill: #b3e084;
 }
-
 .cls-29 {
   fill: #dfffbd;
 }
-
 .cls-30 {
   fill: #6fc716;
 }
-
 .cls-32 {
   fill: #73648c;
 }
-
 .cls-33 {
   fill: #f59055;
 }
-
 .cls-34 {
   fill: #f57355;
 }
-
 .cls-35 {
   fill: #fe932e;
 }
-
 .cls-36 {
   fill: #f27501;
 }
-
 .cls-37 {
   fill: #fcea10;
 }
-
 .cls-38 {
   fill: #e6332a;
 }
-
 .cls-39 {
   fill: #8cb214;
 }
-
 .cls-40 {
   fill: #f39200;
 }
-
 .cls-41 {
   fill: #95c11f;
 }
-
 .cls-42 {
   fill: #d81d19;
 }
-
 .cls-43 {
   fill: #33415e;
 }
-
 .cls-44 {
   fill: #263147;
 }
-
 .cls-45 {
   fill: #0071bc;
 }

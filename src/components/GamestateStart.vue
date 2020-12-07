@@ -10,7 +10,6 @@
       They look suspicious. Answer the questions right to make sure identity is
       kept secret!
     </p>
-
     <slot></slot>
   </div>
 </template>

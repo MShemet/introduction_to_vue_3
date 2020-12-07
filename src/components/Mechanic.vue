@@ -61,3 +61,9 @@
     <path class="cls-7" d="M1229 707h220.4v8.81H1229z" />
   </g>
 </template>
+
+<script>
+export default {};
+</script>
+
+<style lang="scss" scoped></style>
